@@ -4,11 +4,11 @@ inputs:
   GCP_TOKEN:
     description: 'The GCP Key used to connect to BQ'
     required: true
-    default: '${{ secrets.GCP_TOKEN }}'
+    default: 'abcd'
   GH_TOKEN:
     description: 'The PAT to Comment on PRs'
     required: true
-    default: '${{ secrets.GH_TOKEN }}'
+    default: '1234'
   PR_NUMBER:
     description: 'The PR to Comment on'
     required: true
