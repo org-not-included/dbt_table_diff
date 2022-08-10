@@ -1,23 +1,55 @@
-name: 'Hello World'
-description: 'Greet someone'
+name: 'Run checks against DBT Models'
+description: 'Compares columns and rows in BigQuery.'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-number }}
+  GCP_TOKEN: '${{ secrets.GCP_TOKEN }}'
+  GH_TOKEN: '${{ secrets.GH_TOKEN }}'
+  PR_NUMBER: '${{ github.event.number }}'
+  GH_REPO: '${{ github.repository }}'
+  GH_ORG: '${{ github.repository_owner }}'
+  WORK_DIR: '${{ github.workspace }}'
+  DBT_PROFILE_FILE: "helpers/profiles.yml"
+  manifest_file: "results/manifest.json"
+  project_id: "my-bq-project"
+  dev_prefix: "dev_"
+  prod_prefix: "prod_"
+  fallback_prefix: ""
+  ignored_schemas: "legacy,ignored"
+  irregular_schemas: "scratch,test"
 runs:
-  using: "composite"
+  using: ubuntu-latest
   steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
-      shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-number::$(echo $RANDOM)"
-      shell: bash
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
-    - run: goodbye.sh
-      shell: bash
+    - name: Checkout Repo
+      uses: actions/checkout@v2.3.4
+    - name: Run Table Checks
+      run: |
+        # Setup
+        mkdir -p ~/.dbt
+        cp $DBT_PROFILE_FILE ~/.dbt/profiles.yml
+        mkdir -p secrets
+        bq_keyfile = "$(pwd)/secrets/bq_keyfile.json"
+        echo $GCP_TOKEN > $bq_keyfile
+        export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
+        source setup_env.sh $WORK_DIR
+
+        # Grab Changed files
+        output_file="$(pwd)/target/test_results.txt"
+        modified_files=$(python3 -m py-github-helper -t $GH_TOKEN -o ${GH_ORG} -r {GH_REPO} -l $PR_NUMBER -c get_files_changed_during_pr -e '{}')
+        pretty_file_names=$(python3 helpers/run_sql_checks.py --files "${modified_files}" --manifest_file $manifest_file --project_id $project_id --keyfile_path $bq_keyfile --ignored_schemas $ignored_schemas --irregular_schemas $irregular_schemas --dev_prefix $dev_prefix --prod_prefix $prod_prefix --fallback_prefix $fallback_prefix --output_file $output_file)
+        
+        
+        # If our SQL Checks Returned any Results, add them as comment
+        if [[ -f $output_file && -s $output_file ]]
+        then
+          comment=$(cat $output_file)
+        # Otherwise list all the files changed in PR
+        else
+          comment="**No Results to show**\\n Relevant Files Changed:"
+          file_array=($(echo "$pretty_file_names" | tr ' ' '\n'))
+          for mod_file_name in "${file_array[@]}"
+          do
+            comment="${comment}\\n\\t- ${mod_file_name}"
+          done
+        fi
+
+        # Add comment on Pull Request
+        python3 -m py-github-helper -t $GH_TOKEN -o ${GH_ORG} -r {GH_REPO} -l $PR_NUMBER -c add_comment -e '{"message": "'"$comment"'"}'

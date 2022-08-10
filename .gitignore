@@ -1,1 +1,4 @@
 .idea/
+.venv/
+dbt_packages/
+logs/

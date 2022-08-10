@@ -1,0 +1,12 @@
+ds_dbt:
+  outputs:
+    dev:
+      dataset: dev
+      method: oauth
+      priority: interactive
+      project: my-project-id
+      retries: 1
+      threads: 1
+      timeout_seconds: 300
+      type: bigquery
+  target: dev

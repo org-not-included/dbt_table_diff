@@ -3,12 +3,14 @@ on: [push]
 jobs:
   hello_world_job:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: Template for Running Row/Column checks against DBT models in Bigquery
     steps:
       - uses: actions/checkout@v3
-      - id: foo
+      - id: dummy
         uses: org-not-included/dbt_table_diff@v1
         with:
-          who-to-greet: 'Mike'
-      - run: echo random-number ${{ steps.foo.outputs.random-number }}
-        shell: bash
+          GCP_TOKEN: 1
+          GH_TOKEN: 2
+          PR_NUMBER: 3
+          GH_REPO: 4
+          GH_ORG: 5
