@@ -1,20 +1,62 @@
 name: 'Run checks against DBT Models'
 description: 'Compares columns and rows in BigQuery.'
 inputs:
-  GCP_TOKEN: '${{ secrets.GCP_TOKEN }}'
-  GH_TOKEN: '${{ secrets.GH_TOKEN }}'
-  PR_NUMBER: '${{ github.event.number }}'
-  GH_REPO: '${{ github.repository }}'
-  GH_ORG: '${{ github.repository_owner }}'
-  WORK_DIR: '${{ github.workspace }}'
-  DBT_PROFILE_FILE: "helpers/profiles.yml"
-  manifest_file: "results/manifest.json"
-  project_id: "my-bq-project"
-  dev_prefix: "dev_"
-  prod_prefix: "prod_"
-  fallback_prefix: ""
-  ignored_schemas: "legacy,ignored"
-  irregular_schemas: "scratch,test"
+  GCP_TOKEN:
+    description: 'The GCP Key used to connect to BQ'
+    required: true
+    default: '${{ secrets.GCP_TOKEN }}'
+  GH_TOKEN:
+    description: 'The PAT to Comment on PRs'
+    required: true
+    default: '${{ secrets.GH_TOKEN }}'
+  PR_NUMBER:
+    description: 'The PR to Comment on'
+    required: true
+    default: '${{ github.event.number }}'
+  GH_REPO:
+    description: 'The Github Repository'
+    required: true
+    default: '${{ github.repository }}'
+  GH_ORG:
+    description: 'The Github Repository Owner'
+    required: true
+    default: '${{ github.repository_owner }}'
+  WORK_DIR:
+    description: "The fullpath to dbt workspace"
+    required: true
+    default: '${{ github.workspace }}'
+  DBT_PROFILE_FILE:
+    description: 'The fullpath to dbt profile (needs to exist in repo)'
+    required: true
+    default: "helpers/profiles.yml"
+  manifest_file:
+    description: "The fullpath to dbt's compiled manifest file."
+    required: true
+    default: "results/manifest.json"
+  project_id:
+    description: 'The BigQuery Project ID'
+    required: true
+    default: "my-bq-project"
+  dev_prefix:
+    description: 'The schema prefix used by dbt on dev datasets'
+    required: true
+    default: "dev_"
+  prod_prefix:
+    description: 'The schema prefix used by dbt on prod datasets'
+    required: true
+    default: "prod_"
+  fallback_prefix:
+    description: 'An alternative schema prefix used by a select few prod datasets'
+    required: true
+    default: ""
+  ignored_schemas:
+    description: 'Schemas which do not have a prod counterpart (ignored)'
+    required: true
+    default: "legacy,ignored"
+  irregular_schemas:
+    description: 'The schemas which leverage fallback prefix'
+    required: true
+    default: "scratch,test"
 runs:
   using: ubuntu-latest
   steps:

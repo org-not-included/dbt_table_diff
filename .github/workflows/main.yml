@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Template for Running Row/Column checks against DBT models in Bigquery
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: dummy
         uses: org-not-included/dbt_table_diff@v2
         with:
