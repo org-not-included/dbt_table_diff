@@ -72,7 +72,7 @@ runs:
         bq_keyfile="$(pwd)/secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
-        source setup_env.sh ${{ inputs.WORK_DIR }}
+        source setup.sh ${{ inputs.WORK_DIR }}
 
         # Grab Changed files
         output_file="$(pwd)/target/test_results.txt"
