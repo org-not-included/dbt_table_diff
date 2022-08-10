@@ -66,10 +66,11 @@ runs:
       shell: bash
       run: |
         # Setup
-        mkdir -p ~/.dbt
-        cp $DBT_PROFILE_FILE ~/.dbt/profiles.yml
+        DBT_PROFILE_DIR="$(pwd)/.dbt"
+        mkdir -p $DBT_PROFILE_DIR
+        cp ${DBT_PROFILE_FILE} $DBT_PROFILE_DIR
         mkdir -p secrets
-        bq_keyfile = "$(pwd)/secrets/bq_keyfile.json"
+        export bq_keyfile="$(pwd)/secrets/bq_keyfile.json"
         echo $GCP_TOKEN > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         source setup_env.sh $WORK_DIR
