@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - id: dummy
-        uses: org-not-included/dbt_table_diff@v3
+        uses: org-not-included/dbt_table_diff@v4
         with:
           GCP_TOKEN: 1
           GH_TOKEN: 2
