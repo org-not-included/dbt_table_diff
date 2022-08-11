@@ -83,6 +83,9 @@ runs:
         cd /home/runner/work/_actions/
         pwd
         ls -la
+        cd org-not-included
+        pwd
+        ls -la
         cd dbt_table_diff
         pwd
         ls -la
