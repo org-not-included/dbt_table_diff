@@ -65,25 +65,16 @@ runs:
     - name: Run Table Checks
       shell: bash
       run: |
-        # Setup
-        echo "Before script:"
-        pwd
-        ls -la
-        mkdir -p ~/.dbt
+        # Setup & run DBT compile
         cp ${{ inputs.DBT_PROFILE_FILE }} ~/.dbt/profiles.yml
-        mkdir -p secrets
-        curr_dir=$(pwd)
-        bq_keyfile="$curr_dir/secrets/bq_keyfile.json"
+        bq_keyfile="secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
-        echo "After script:"
-        cd /home/runner/work/_actions/actions/
-        pwd
-        ls -la
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v25
-        pwd
-        ls -la
+
+        # change to the github action workspace
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v26
+        mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
 
