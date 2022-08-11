@@ -66,6 +66,9 @@ runs:
       shell: bash
       run: |
         # Setup
+        echo "Before script:"
+        pwd
+        ls -la
         mkdir -p ~/.dbt
         cp ${{ inputs.DBT_PROFILE_FILE }} ~/.dbt/profiles.yml
         mkdir -p secrets
@@ -76,7 +79,13 @@ runs:
         gh_keyfile="$curr_dir/secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
+        echo "After script:"
+        pwd
+        ls -la
         cd $curr_dir
+        echo "After cd curr_dir:"
+        pwd
+        ls -la
 
         # Grab Changed files
         output_file="$(pwd)/target/test_results.txt"
