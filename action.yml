@@ -66,6 +66,7 @@ runs:
       shell: bash
       run: |
         # Setup & run DBT compile
+        mkdir -p ~/.dbt
         cp ${{ inputs.DBT_PROFILE_FILE }} ~/.dbt/profiles.yml
         bq_keyfile="secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
@@ -73,7 +74,7 @@ runs:
         source setup.sh ${{ inputs.WORK_DIR }}
 
         # change to the github action workspace
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v26
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v27
         mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
