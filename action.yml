@@ -75,10 +75,12 @@ runs:
         source setup.sh ${{ inputs.WORK_DIR }}
 
         # change to the github action workspace
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v30
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v31
         mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
+        bq_keyfile="secrets/bq_keyfile.json"
+        echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
 
         # Grab Changed files
         output_file="$(pwd)/target/test_results.txt"
