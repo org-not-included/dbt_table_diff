@@ -70,7 +70,7 @@ runs:
         cp ${{ inputs.DBT_PROFILE_FILE }} ~/.dbt/profiles.yml
         mkdir -p secrets
         curr_dir=$(pwd)
-        bq_keyfile="/secrets/bq_keyfile.json"
+        bq_keyfile="$curr_dir/secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
