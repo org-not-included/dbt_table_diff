@@ -2,4 +2,4 @@ dbt-bigquery==1.0.0
 jinja2
 pandas
 pandas-gbq
-py-github-helper==0.1.12
+py-github-helper==0.1.13
