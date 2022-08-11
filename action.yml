@@ -80,6 +80,10 @@ runs:
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
         echo "After script:"
+        cd ..
+        pwd
+        ls -la
+        cd ..
         pwd
         ls -la
         cd $curr_dir
