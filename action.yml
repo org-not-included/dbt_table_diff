@@ -29,10 +29,6 @@ inputs:
     description: 'The fullpath to dbt profile (needs to exist in repo)'
     required: true
     default: "helpers/profiles.yml"
-  manifest_file:
-    description: "The fullpath to dbt's compiled manifest file."
-    required: true
-    default: "results/manifest.json"
   project_id:
     description: 'The BigQuery Project ID'
     required: true
@@ -73,9 +69,10 @@ runs:
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
+        manifest_file="$(pwd)/target/manifest.json"
 
         # change to the github action workspace
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v31
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v32
         mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
@@ -86,7 +83,7 @@ runs:
         output_file="$(pwd)/target/test_results.txt"
         echo "python3 -m py-github-helper -o ${{ inputs.GH_ORG }} -r ${{ inputs.GH_REPO }} -l ${{ inputs.PR_NUMBER }} -c get_files_changed_during_pr -e '{}'"
         modified_files=$(python3 -m py-github-helper -o ${{ inputs.GH_ORG }} -r ${{ inputs.GH_REPO }} -l ${{ inputs.PR_NUMBER }} -c get_files_changed_during_pr -e '{}')
-        pretty_file_names=$(python3 helpers/run_sql_checks.py --files "${modified_files}" --manifest_file ${{ inputs.manifest_file }} --project_id ${{ inputs.project_id }} --keyfile_path $bq_keyfile --ignored_schemas ${{ inputs.ignored_schemas }} --irregular_schemas ${{ inputs.irregular_schemas }} --dev_prefix ${{ inputs.dev_prefix }} --prod_prefix ${{ inputs.prod_prefix }} --fallback_prefix ${{ inputs.fallback_prefix }} --output_file $output_file)
+        pretty_file_names=$(python3 helpers/run_sql_checks.py --files "${modified_files}" --manifest_file $manifest_file --project_id ${{ inputs.project_id }} --keyfile_path $bq_keyfile --ignored_schemas ${{ inputs.ignored_schemas }} --irregular_schemas ${{ inputs.irregular_schemas }} --dev_prefix ${{ inputs.dev_prefix }} --prod_prefix ${{ inputs.prod_prefix }} --fallback_prefix ${{ inputs.fallback_prefix }} --output_file $output_file)
         
         # If our SQL Checks Returned any Results, add them as comment
         if [[ -f $output_file && -s $output_file ]]
