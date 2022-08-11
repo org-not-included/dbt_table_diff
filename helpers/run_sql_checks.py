@@ -52,6 +52,7 @@ def parse_manifest(manifest_file, files, ignored_schemas, dev_prefix):
 
 
 def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix, irregular_schemas):
+    results = {}
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(sql_checks_path))
     for file in os.listdir(sql_checks_path):
         template = env.get_template(file)
