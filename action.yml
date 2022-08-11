@@ -76,19 +76,16 @@ runs:
         bq_keyfile="$curr_dir/secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
-        gh_keyfile="$curr_dir/secrets/gh_keyfile.json"
-        echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
         echo "After script:"
-        cd /home/runner/work/_actions/
+        cd /home/runner/work/_actions/actions/
         pwd
         ls -la
-        cd org-not-included
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v23
         pwd
         ls -la
-        cd dbt_table_diff
-        pwd
-        ls -la
+        gh_keyfile="secrets/gh_keyfile.json"
+        echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
 
         # Grab Changed files
         output_file="$(pwd)/target/test_results.txt"
