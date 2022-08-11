@@ -74,7 +74,7 @@ runs:
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         gh_keyfile="$curr_dir/secrets/gh_keyfile.json"
-        echo ${{ inputs.GH_TOKEN }} > $gh_keyfile
+        echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
         cd $curr_dir
 
