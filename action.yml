@@ -81,7 +81,7 @@ runs:
         cd /home/runner/work/_actions/actions/
         pwd
         ls -la
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v23
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v25
         pwd
         ls -la
         gh_keyfile="secrets/gh_keyfile.json"
