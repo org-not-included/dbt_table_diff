@@ -75,8 +75,8 @@ runs:
         source setup.sh ${{ inputs.WORK_DIR }}
 
         # change to the github action workspace
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v29
         mkdir -p secrets
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v28
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
 
