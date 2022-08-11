@@ -80,14 +80,10 @@ runs:
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
         echo "After script:"
-        cd ..
+        cd /home/runner/work/_actions/
         pwd
         ls -la
-        cd ..
-        pwd
-        ls -la
-        cd $curr_dir
-        echo "After cd curr_dir:"
+        cd dbt_table_diff
         pwd
         ls -la
 
