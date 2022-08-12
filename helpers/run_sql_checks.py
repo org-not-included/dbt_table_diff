@@ -54,6 +54,7 @@ def parse_manifest(manifest_file, files, ignored_schemas, dev_prefix):
 def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix, irregular_schemas):
     results = {}
     if os.path.exists(sql_checks_path):
+        logging.error(f"Running checks in path: {sql_checks_path}.")
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(sql_checks_path))
         for file in os.listdir(sql_checks_path):
             template = env.get_template(file)
@@ -74,6 +75,8 @@ def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix
                     results[file][table] = (schema, compare_schema, values)
             if len(results[file]) == 0:
                 results.pop(file)
+    else:
+        logging.error(f"File path {sql_checks_path} not found.")
     return results
 
 

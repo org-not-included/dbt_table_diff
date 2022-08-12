@@ -72,9 +72,9 @@ runs:
         bq_keyfile="secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
+        custom_checks_path="$(pwd)/${{ inputs.custom_checks_path }}"
         source setup.sh ${{ inputs.WORK_DIR }}
         manifest_file="$(pwd)/target/manifest.json"
-        custom_checks_path="$pwd/${{ inputs.custom_checks_path }}"
 
         # change to the github action workspace
         cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v2
