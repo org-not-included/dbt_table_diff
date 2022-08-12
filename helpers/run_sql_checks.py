@@ -115,6 +115,13 @@ def save_results(results, output_file):
                     output += f"{indented_bullet}Columns only found in {dev}: {','.join(only_dev)}"
                 if only_prod:
                     output += f"{indented_bullet}Columns only found in {prod}: {','.join(only_prod)}"
+        else:
+            output += f"{new_line}{new_line}**Custom Test:** {sql_check}"
+            for table_name, table_details in tables.items():
+                if table_details:
+                    dev, prod, rows = table_details
+                    for row in rows:
+                        output += f"{indented_bullet}Results: {','.join(row)}"
 
     with open(output_file, "w+") as file:
         file.write(output)
