@@ -43,5 +43,8 @@ def fetch_input_args():
     parser.add_argument(
         "--output_file", help="Where to write results of SQL checks."
     )
+    parser.add_argument(
+        "--custom_checks_path", help="A local folder containing any custom SQL to run."
+    )
     input_args = parser.parse_args()
     return format_args(input_args=input_args)

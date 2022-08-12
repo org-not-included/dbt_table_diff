@@ -53,26 +53,27 @@ def parse_manifest(manifest_file, files, ignored_schemas, dev_prefix):
 
 def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix, irregular_schemas):
     results = {}
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(sql_checks_path))
-    for file in os.listdir(sql_checks_path):
-        template = env.get_template(file)
-        results[file] = {}
-        for database, schema, table in models:
-            logging.info(f"File: {file}, Schema: {schema}, Table: {table}")
-            pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
-            if schema in irregular_schemas:
-                compare_schema = schema.replace(dev_prefix, fallback_prefix)
-            else:
-                compare_schema = schema.replace(dev_prefix, prod_prefix)
-            sql = template.render(dataset=project_id, table=table, schema=schema, compare_schema=compare_schema)
-            data = pd.read_gbq(sql)
-            if not data.empty:
-                logging.info(sql)
-                values = data.values.tolist()
-                logging.info(f"Results: {values}")
-                results[file][table] = (schema, compare_schema, values)
-        if len(results[file]) == 0:
-            results.pop(file)
+    if os.path.exists(sql_checks_path):
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader(sql_checks_path))
+        for file in os.listdir(sql_checks_path):
+            template = env.get_template(file)
+            results[file] = {}
+            for database, schema, table in models:
+                logging.info(f"File: {file}, Schema: {schema}, Table: {table}")
+                pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
+                if schema in irregular_schemas:
+                    compare_schema = schema.replace(dev_prefix, fallback_prefix)
+                else:
+                    compare_schema = schema.replace(dev_prefix, prod_prefix)
+                sql = template.render(dataset=project_id, table=table, schema=schema, compare_schema=compare_schema)
+                data = pd.read_gbq(sql)
+                if not data.empty:
+                    logging.info(sql)
+                    values = data.values.tolist()
+                    logging.info(f"Results: {values}")
+                    results[file][table] = (schema, compare_schema, values)
+            if len(results[file]) == 0:
+                results.pop(file)
     return results
 
 
@@ -131,6 +132,7 @@ if __name__ == "__main__":
     prod_prefix = input_args.prod_prefix
     fallback_prefix = input_args.fallback_prefix
     output_file = input_args.output_file
+    custom_checks_path = input_args.custom_checks_path
 
     pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
 
@@ -146,7 +148,13 @@ if __name__ == "__main__":
     tables = [table for db, schema, table in models]
     logging.error(f"Relevant Models:{new_line + new_line.join(tables)}")
     if models:
-        results = run_checks(models=models, sql_checks_path="helpers/sql_checks", dev_prefix=dev_prefix, prod_prefix=prod_prefix, fallback_prefix=fallback_prefix, irregular_schemas=irregular_schemas)
+        standard_results = run_checks(models=models, sql_checks_path="helpers/sql_checks", dev_prefix=dev_prefix,
+                                      prod_prefix=prod_prefix, fallback_prefix=fallback_prefix,
+                                      irregular_schemas=irregular_schemas)
+        custom_results = run_checks(models=models, sql_checks_path=custom_checks_path, dev_prefix=dev_prefix,
+                                    prod_prefix=prod_prefix, fallback_prefix=fallback_prefix,
+                                    irregular_schemas=irregular_schemas)
+        results = {**standard_results, **custom_results}
         if results:
             save_results(results, output_file)
     print(' '.join(relevant_files))

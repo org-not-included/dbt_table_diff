@@ -53,6 +53,10 @@ inputs:
     description: 'The schemas which leverage fallback prefix'
     required: true
     default: "scratch,test"
+  custom_checks_path:
+    description: 'A local folder containing any custom SQL to run.'
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -70,9 +74,10 @@ runs:
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         source setup.sh ${{ inputs.WORK_DIR }}
         manifest_file="$(pwd)/target/manifest.json"
+        custom_checks_path="$pwd/$custom_checks_path"
 
         # change to the github action workspace
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v1
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v2
         mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
@@ -84,7 +89,7 @@ runs:
         mkdir -p $output_folder
         output_file="$(pwd)/target/test_results.txt"
         modified_files=$(python3 -m py-github-helper -o ${{ inputs.GH_ORG }} -r ${{ inputs.GH_REPO }} -l ${{ inputs.PR_NUMBER }} -c get_files_changed_during_pr -e '{}')
-        pretty_file_names=$(python3 helpers/run_sql_checks.py --files "${modified_files}" --manifest_file $manifest_file --project_id ${{ inputs.project_id }} --keyfile_path $bq_keyfile --ignored_schemas ${{ inputs.ignored_schemas }} --irregular_schemas ${{ inputs.irregular_schemas }} --dev_prefix ${{ inputs.dev_prefix }} --prod_prefix ${{ inputs.prod_prefix }} --fallback_prefix ${{ inputs.fallback_prefix }} --output_file $output_file)
+        pretty_file_names=$(python3 helpers/run_sql_checks.py --files "${modified_files}" --manifest_file $manifest_file --project_id ${{ inputs.project_id }} --keyfile_path $bq_keyfile --ignored_schemas ${{ inputs.ignored_schemas }} --irregular_schemas ${{ inputs.irregular_schemas }} --dev_prefix ${{ inputs.dev_prefix }} --prod_prefix ${{ inputs.prod_prefix }} --fallback_prefix ${{ inputs.fallback_prefix }} --output_file $output_file --custom_checks_path $custom_checks_path)
         
         # If our SQL Checks Returned any Results, add them as comment
         if [[ -f $output_file && -s $output_file ]]
