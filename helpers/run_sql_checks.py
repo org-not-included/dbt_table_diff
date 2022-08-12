@@ -123,6 +123,7 @@ def save_results(results, output_file):
             for table_name, table_details in tables.items():
                 if table_details:
                     dev, prod, rows = table_details
+                    output += f"{bullet}{prod}.{table_name}"
                     for row in rows:
                         output += f"{indented_bullet}Results: {','.join(str(val) for val in row)}"
 
