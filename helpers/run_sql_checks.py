@@ -124,7 +124,7 @@ def save_results(results, output_file):
                 if table_details:
                     dev, prod, rows = table_details
                     for row in rows:
-                        output += f"{indented_bullet}Results: {','.join(row)}"
+                        output += f"{indented_bullet}Results: {','.join(str(val) for val in row)}"
 
     with open(output_file, "w+") as file:
         file.write(output)
