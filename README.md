@@ -7,7 +7,7 @@ This github action is intended for comparing `models` that have changed in an op
 - Runs `dbt deps; dbt compile` to build `manifest.json`
 - Parses `manifest.json` and fetches `relevant_models` with manifest-attribute `original_file_path` in `relevant_files`
 - Loops over `models`
-  - Runs all SQL files in `helpers/sql_checks` for each of the `relevant_models` (comparing `dev vs prod` via (dev_prefix` and `prod_prefix`)
+  - Runs all SQL files in `helpers/sql_checks` for each of the `relevant_models` (comparing `dev vs prod` via `dev_prefix` and `prod_prefix`)
   - Saves output to file, in pretty format for github comment
   - Leverages `py-github-helper` to post comment on open PR
 
