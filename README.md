@@ -12,7 +12,7 @@ This github action is intended for comparing `models` that have changed in an op
   - Leverages `py-github-helper` to post comment on open PR
 
 **Github Actions Input Arguments:**
-Look at [this working example](https://github.com/org-not-included/dbt_example/blob/12b178640099c89a3c11fdb0da4ae9035c8f817f/.github/workflows/main.yml#L27-L36), if you are unfamiliar with `Github Actions Inputs`. `Inputs` are used to configure Github Actions, and can be thought of as parameters/config, so the action knows what to do.
+Look at [this working example](https://github.com/org-not-included/dbt_example/blob/5ff89b5d059b7c8b101bd08744bd9d01342bfb77/.github/workflows/main.yml), if you are unfamiliar with `Github Actions Inputs`. `Inputs` are used to configure Github Actions, and can be thought of as parameters/config, so the action knows what to do.
 
 **How inputs are used:**
 - `GCP_TOKEN` -> for connecting to BQ
