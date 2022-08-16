@@ -6,10 +6,10 @@ This github action is intended for comparing `models` that have changed in an op
 - Filters on files matching `models/*.sql` (call these `relevant_files`)
 - Runs `dbt deps; dbt compile` to build `manifest.json`
 - Parses `manifest.json` and fetches `relevant_models` with manifest-attribute `original_file_path` in `relevant_files`
-- Loops over `models`
-  - Runs all SQL files in `helpers/sql_checks` for each of the `relevant_models` (comparing `dev vs prod` via `dev_prefix` and `prod_prefix`)
-  - Saves output to file, in pretty format for github comment
-  - Leverages `py-github-helper` to post comment on open PR
+- Runs all SQL files in `helpers/sql_checks` for each of the `relevant_models`
+  - comparing two dbt targets via `dev_prefix` and `prod_prefix`
+- Saves output to file, in pretty format for github comment
+- Leverages `py-github-helper` to post comment on open PR
 
 **Github Actions Input Arguments:**
 Look at [this working example](https://github.com/org-not-included/dbt_example/blob/5ff89b5d059b7c8b101bd08744bd9d01342bfb77/.github/workflows/main.yml), if you are unfamiliar with `Github Actions Inputs`. `Inputs` are used to configure Github Actions, and can be thought of as parameters/config, so the action knows what to do.
