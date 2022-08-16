@@ -13,7 +13,10 @@ from arg_parser import fetch_input_args
 def get_pandas(project_id, keyfile_path):
     """
     Initializes pandas package to leverage GCP credentials.
-    Returns:
+
+    :param project_id: The unique id of your GCP Project.
+    :param keyfile_path: The local path to your GCP keyfile.
+    :return:
         pandas library, with GCP credentials configured.
     """
     credentials = service_account.Credentials.from_service_account_file(
@@ -23,7 +26,15 @@ def get_pandas(project_id, keyfile_path):
     pandas_gbq.context.project = project_id
     return pandas
 
+
 def get_relevant_files(files):
+    """
+    Filters on files matching the pattern "models(/.+)+.sql"
+
+    :param files: A list of files (ie. files modified in branch or PR)
+    :return:
+    A list of SQL files in any sub-folder of models/
+    """
     relevant_files = []
     for file in files:
         if file.startswith("models/") and file.endswith(".sql"):
@@ -32,26 +43,49 @@ def get_relevant_files(files):
 
 
 def parse_manifest(manifest_file, files, ignored_schemas, dev_prefix):
+    """
+    Parses manifest_file for models which have an 'original_file_path' matching one of the files.
+
+    :param manifest_file: The target/manifest.json file created from 'dbt compile'
+    :param files: A list of files (ie. files modified in branch or PR)
+    :param ignored_schemas: Schemas to ignore (ie. their models only exist in dev)
+    :param dev_prefix: Prefix of the schema (when target=dev)
+    :return:
+    A list of models (db, schema, table)
+    """
     # ========================================================================
     # Fetch Models for target/manifest.json
     # ========================================================================
     models = []
-    schemas = set()
     with open(manifest_file) as file:
         run_results = json.loads(file.read())
         for file in files:
             for model_id, model_details in run_results["nodes"].items():
                 if model_details["original_file_path"] == file:
-                    if model_details["schema"].startswith(dev_prefix) and model_details["schema"] not in ignored_schemas:
+                    if model_details["schema"].startswith(dev_prefix) and model_details[
+                        "schema"] not in ignored_schemas:
                         database = model_details["database"]
                         schema = model_details["schema"]
                         table = model_details["name"]
                         models.append([database, schema, table])
                         schemas.add(schema)
-    return models, schemas
+    return models
 
 
 def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix, irregular_schemas):
+    """
+    Loops over files in sql_checks_path and runs each of the checks for each model in models.
+
+    :param models: List of tables to run checks on
+    :param sql_checks_path: Path to folder containing sql checks to run
+    :param dev_prefix: Prefix of dev schema
+    :param prod_prefix: Prefix of prod schema
+    :param fallback_prefix: One-off prefix for irregular_schemas
+    :param irregular_schemas: List of schemas that dont use prod_prefix in production
+    :return:
+    Dictionary containing all SQL results
+        Format: '{sql_check: {table: [dev_schema, prod_schema, results]}}'
+    """
     results = {}
     if os.path.exists(sql_checks_path):
         logging.error(f"Running checks in path: {sql_checks_path}.")
@@ -81,8 +115,15 @@ def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix
 
 
 def save_results(results, output_file):
-    # ========================================================================
-    # Fetch Test Results from BigQuery and Print them cleanly
+    f"""
+    Iterates over SQL check results formats them into a readable format.
+    
+    :param results: Contains output from all sql checks for all models
+    :param output_file: file to write formatted results to
+    :return: 
+    None
+    """
+    #
     # ========================================================================
     output = f"**Failures:**{bullet}{bullet.join(results.keys())}"
 
@@ -155,7 +196,8 @@ if __name__ == "__main__":
     logging.error(f"Files Changed:{new_line + new_line.join(files)}")
     relevant_files = get_relevant_files(files)
     logging.error(f"Relevant Files:{new_line + new_line.join(relevant_files)}")
-    models, schemas = parse_manifest(manifest_file=manifest_file, files=relevant_files, ignored_schemas=ignored_schemas, dev_prefix=dev_prefix)
+    models = parse_manifest(manifest_file=manifest_file, files=relevant_files, ignored_schemas=ignored_schemas,
+                            dev_prefix=dev_prefix)
     tables = [table for db, schema, table in models]
     logging.error(f"Relevant Models:{new_line + new_line.join(tables)}")
     if models:

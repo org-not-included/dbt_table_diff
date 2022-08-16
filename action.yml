@@ -66,6 +66,7 @@ runs:
       shell: bash
       run: |
         # Setup & run DBT compile
+        echo "Initializing environment..."
         mkdir -p ~/.dbt
         mkdir -p secrets
         cp ${{ inputs.DBT_PROFILE_FILE }} ~/.dbt/profiles.yml
@@ -73,10 +74,13 @@ runs:
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
         export GOOGLE_APPLICATION_CREDENTIALS=$bq_keyfile
         custom_checks_path="$(pwd)/${{ inputs.custom_checks_path }}"
+
+        # Compiling DBT environment
+        echo "Running dbt deps and dbt compile..."
         source setup.sh ${{ inputs.WORK_DIR }}
         manifest_file="$(pwd)/target/manifest.json"
 
-        # change to the github action workspace
+        # CD to the Github Action's workspace
         cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v2
         mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
@@ -84,13 +88,19 @@ runs:
         bq_keyfile="secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
 
-        # Grab Changed files
+        # Grab Modified files
+        echo "Fetching file changes from Github: ${{ inputs.GH_ORG }}/${{ inputs.GH_REPO }} (PR# ${{ inputs.PR_NUMBER }})..."
+        modified_files=$(python3 -m py-github-helper -o ${{ inputs.GH_ORG }} -r ${{ inputs.GH_REPO }} -l ${{ inputs.PR_NUMBER }} -c get_files_changed_during_pr -e '{}')
+
+        # Run Checks on Modified Files
+        echo "Running ..."
         output_folder="$(pwd)/target"
         mkdir -p $output_folder
         output_file="$(pwd)/target/test_results.txt"
-        modified_files=$(python3 -m py-github-helper -o ${{ inputs.GH_ORG }} -r ${{ inputs.GH_REPO }} -l ${{ inputs.PR_NUMBER }} -c get_files_changed_during_pr -e '{}')
         pretty_file_names=$(python3 helpers/run_sql_checks.py --files "${modified_files}" --manifest_file $manifest_file --project_id ${{ inputs.project_id }} --keyfile_path $bq_keyfile --ignored_schemas ${{ inputs.ignored_schemas }} --irregular_schemas ${{ inputs.irregular_schemas }} --dev_prefix ${{ inputs.dev_prefix }} --prod_prefix ${{ inputs.prod_prefix }} --fallback_prefix ${{ inputs.fallback_prefix }} --output_file $output_file --custom_checks_path $custom_checks_path)
-        
+
+
+        echo "Formatting Comment..."
         # If our SQL Checks Returned any Results, add them as comment
         if [[ -f $output_file && -s $output_file ]]
         then
@@ -105,5 +115,6 @@ runs:
           done
         fi
 
+        echo "Adding Comment..."
         # Add comment on Pull Request
         python3 -m py-github-helper -o ${{ inputs.GH_ORG }} -r ${{ inputs.GH_REPO }} -l ${{ inputs.PR_NUMBER }} -c add_comment -e '{"message": "'"$comment"'"}'
