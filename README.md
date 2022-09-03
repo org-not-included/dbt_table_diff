@@ -26,20 +26,16 @@ It only currently supports `BigQuery`.
 
 ---  
 
-### Github Actions Input Arguments:
-
----  
-
 ### Quick Start:
 
 [This example Workflow File](https://github.com/org-not-included/dbt_example/blob/main/.github/workflows/main.yml) shows how to configure the Github Action via `Github Actions Inputs`.  
 [This example Pull Request](https://github.com/org-not-included/dbt_example/pull/2) shows the output of the Github Action.  
 ![Screen Shot 2022-08-11 at 3 42 04 PM](https://user-images.githubusercontent.com/101577043/184239324-9384b0d2-0d32-4a17-8b5b-41b59b78038e.png)
 
----
+---  
 
-### How inputs are used:
-  
+### Github Actions Input Arguments:
+
   
 | Input Parameter             | Description                                                                                                                                        |  
 |-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
