@@ -6,6 +6,7 @@ def format_args(input_args):
     Transform user input args from strings to their actual types.
     """
     files = ast.literal_eval(input_args.files)
+
     return files, input_args
 
 def fetch_input_args():

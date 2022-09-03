@@ -2,3 +2,4 @@
 .venv/
 dbt_packages/
 logs/
+__pycache__/
