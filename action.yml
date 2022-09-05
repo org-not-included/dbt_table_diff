@@ -81,7 +81,7 @@ runs:
         manifest_file="$(pwd)/target/manifest.json"
 
         # CD to the Github Action's workspace
-        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v2
+        cd /home/runner/work/_actions/org-not-included/dbt_table_diff/v2.2.1
         mkdir -p secrets
         gh_keyfile="secrets/gh_keyfile.json"
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
