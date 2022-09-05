@@ -1,6 +1,7 @@
 dbt-bigquery==1.0.0
-jinja2
 google-cloud-bigquery==2.34.4
-pandas
-pandas-gbq
+jinja2==2.11.3
+markupsafe==2.0.1
+pandas==1.4.3
+pandas-gbq==0.17.8
 py-github-helper==0.2.2
