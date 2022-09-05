@@ -5,9 +5,8 @@ def format_args(input_args):
     """
     Transform user input args from strings to their actual types.
     """
-    files = ast.literal_eval(input_args.files)
 
-    return files, input_args
+    return input_args
 
 def fetch_input_args():
     """
@@ -15,7 +14,16 @@ def fetch_input_args():
     """
     parser = argparse.ArgumentParser("simple_example")
     parser.add_argument(
-        "--files", help="List of modified .sql files in models/."
+        "-o", "--org_name", help="Owner of GitHub repository."
+    )
+    parser.add_argument(
+        "-r", "--repo_name", help="Name of the GitHub repository."
+    )
+    parser.add_argument(
+        "-t", "--auth_token", help="User's GitHub Personal Access Token."
+    )
+    parser.add_argument(
+        "-l", "--pr_id", help="The issue # of the Pull Request.",
     )
     parser.add_argument(
         "--manifest_file", help="The path to dbt's manifest file."

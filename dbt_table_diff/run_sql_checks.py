@@ -7,6 +7,10 @@ import pandas_gbq
 from google.oauth2 import service_account
 
 from arg_parser import fetch_input_args
+from py_github_helper.utils.commands import (
+    get_files_changed_during_pr,
+    add_comment
+)
 
 
 def get_pandas(project_id, keyfile_path):
@@ -78,6 +82,7 @@ def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix
         Format: '{sql_check: {table: [dev_schema, prod_schema, results]}}'
     """
     results = {}
+    pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
     if os.path.exists(sql_checks_path):
         logging.error(f"Running checks in path: {sql_checks_path}.")
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(sql_checks_path))
@@ -86,7 +91,6 @@ def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix
             results[file] = {}
             for database, schema, table in models:
                 logging.info(f"File: {file}, Schema: {schema}, Table: {table}")
-                pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
                 if schema in irregular_schemas:
                     compare_schema = schema.replace(dev_prefix, fallback_prefix)
                 else:
@@ -180,7 +184,18 @@ if __name__ == "__main__":
     custom_checks_path = input_args.custom_checks_path
     ignored_schemas = input_args.ignored_schemas.split(",")
     irregular_schemas = input_args.irregular_schemas.split(",")
+    org_name = input_args.org_name
+    repo_name = input_args.repo_name
+    pr_id = input_args.pr_id
+    auth_token = input_args.auth_token
 
+    # Get files changed during Pull Request
+    get_files_changed_during_pr(
+        organization=org_name,
+        repository=repo_name,
+        pull_request_id=pr_id,
+        token=auth_token,
+    )
     # Configure Pandas for specific BigQuery Project
     pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
 
@@ -204,12 +219,12 @@ if __name__ == "__main__":
     )
     tables = [table for db, schema, table in models]
     logging.error(f"Relevant Models:{new_line + new_line.join(tables)}")
-
+    print(' '.join(relevant_files))
     # Run SQL Checks, if files in models/*.sql were updated
     if models:
         standard_results = run_checks(
             models=models,
-            sql_checks_path="helpers/sql_checks",
+            sql_checks_path="dbt_table_diff/sql_checks",
             dev_prefix=dev_prefix,
             prod_prefix=prod_prefix,
             fallback_prefix=fallback_prefix,
@@ -224,7 +239,27 @@ if __name__ == "__main__":
         )
         results = {**standard_results, **custom_results}
 
-        # Parse SQL Check results dictionary into a markdown output file
+        # Add Comment to the Pull Request
+        # # Parse SQL Check results dictionary into a markdown output file
         if results:
-            save_results(results, output_file)
-    print(' '.join(relevant_files))
+            # save_results(results, output_file)
+            # Test
+            add_comment(
+                organization=org_name,
+                repository=repo_name,
+                pull_request_id=pr_id,
+                message=f"This is an automated message via Github API.",
+                token=auth_token,
+                username=None,
+                password=None,
+            )
+            # Longshot/messy
+            add_comment(
+                organization=org_name,
+                repository=repo_name,
+                pull_request_id=pr_id,
+                message='<br>'.join('<br>'.join(list(results.items()))),
+                token=auth_token,
+                username=None,
+                password=None,
+            )
