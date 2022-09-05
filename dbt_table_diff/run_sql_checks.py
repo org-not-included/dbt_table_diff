@@ -2,8 +2,6 @@ import json
 import jinja2
 import logging
 import os
-import pandas
-import pandas_gbq
 from google.oauth2 import service_account
 
 from arg_parser import fetch_input_args
@@ -21,6 +19,8 @@ def get_pandas(project_id, keyfile_path):
     :param keyfile_path: The local path to your GCP keyfile.
     :return: Pandas library, with GCP credentials configured.
     """
+    import pandas
+    import pandas_gbq
     credentials = service_account.Credentials.from_service_account_file(
         keyfile_path,
     )
@@ -171,39 +171,27 @@ def save_results(results, output_file):
         file.write(output)
 
 
-if __name__ == "__main__":
-    # Parse CLI Flags
-    files, input_args = fetch_input_args()
-    manifest_file = input_args.manifest_file
-    project_id = input_args.project_id
-    keyfile_path = input_args.keyfile_path
-    dev_prefix = input_args.dev_prefix
-    prod_prefix = input_args.prod_prefix
-    fallback_prefix = input_args.fallback_prefix
-    output_file = input_args.output_file
-    custom_checks_path = input_args.custom_checks_path
-    ignored_schemas = input_args.ignored_schemas.split(",")
-    irregular_schemas = input_args.irregular_schemas.split(",")
-    org_name = input_args.org_name
-    repo_name = input_args.repo_name
-    pr_id = input_args.pr_id
-    auth_token = input_args.auth_token
+def run_checks(
+        manifest_file,
+        dev_prefix,
+        prod_prefix,
+        fallback_prefix,
+        custom_checks_path,
+        ignored_schemas,
+        irregular_schemas,
+        org_name,
+        repo_name,
+        pr_id,
+        auth_token
+):
 
     # Get files changed during Pull Request
-    get_files_changed_during_pr(
+    files = get_files_changed_during_pr(
         organization=org_name,
         repository=repo_name,
         pull_request_id=pr_id,
         token=auth_token,
     )
-    # Configure Pandas for specific BigQuery Project
-    pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
-
-    # Useful strings for f-string formatting Logs
-    new_line = "  \\n"
-    bullet = f"{new_line}- "
-    indented_new_line = "  \\n\\t"
-    indented_bullet = f"{indented_new_line}- "
 
     # Filter modified file on SQL files in models/
     logging.error(f"Files Changed:{new_line + new_line.join(files)}")
@@ -263,3 +251,46 @@ if __name__ == "__main__":
                 username=None,
                 password=None,
             )
+
+def parse_flags_and_run():
+    # Parse CLI Flags
+    input_args = fetch_input_args()
+    manifest_file = input_args.manifest_file
+    project_id = input_args.project_id
+    keyfile_path = input_args.keyfile_path
+    dev_prefix = input_args.dev_prefix
+    prod_prefix = input_args.prod_prefix
+    fallback_prefix = input_args.fallback_prefix
+    custom_checks_path = input_args.custom_checks_path
+    ignored_schemas = input_args.ignored_schemas.split(",")
+    irregular_schemas = input_args.irregular_schemas.split(",")
+    org_name = input_args.org_name
+    repo_name = input_args.repo_name
+    pr_id = input_args.pr_id
+    auth_token = input_args.auth_token
+
+    # Configure Pandas for specific BigQuery Project
+    pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
+
+    # Useful strings for f-string formatting Logs
+    new_line = "  \\n"
+    bullet = f"{new_line}- "
+    indented_new_line = "  \\n\\t"
+    indented_bullet = f"{indented_new_line}- "
+
+    run_checks(
+        manifest_file,
+        dev_prefix,
+        prod_prefix,
+        fallback_prefix,
+        custom_checks_path,
+        ignored_schemas,
+        irregular_schemas,
+        org_name,
+        repo_name,
+        pr_id,
+        auth_token
+    )
+
+if __name__ == "__main__":
+    parse_flags_and_run()

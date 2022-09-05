@@ -1,12 +1,5 @@
 import argparse
-import ast
 
-def format_args(input_args):
-    """
-    Transform user input args from strings to their actual types.
-    """
-
-    return input_args
 
 def fetch_input_args():
     """
@@ -55,5 +48,4 @@ def fetch_input_args():
     parser.add_argument(
         "--custom_checks_path", help="A local folder containing any custom SQL to run."
     )
-    input_args = parser.parse_args()
-    return format_args(input_args=input_args)
+    return parser.parse_args()
