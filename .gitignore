@@ -9,5 +9,6 @@ dbt_packages/
 
 # PyPi Stuff
 .eggs/
+build/
 dbt_table_diff.egg-info/
 dist/

@@ -17,8 +17,20 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
-    setup_requires=['dbt-bigquery', 'google-cloud-bigquery==2.34.4', 'jinja2', 'pandas', 'pandas-gbq', 'py-github-helper>=0.2.2'],
-    install_requires=['dbt-bigquery', 'google-cloud-bigquery==2.34.4', 'jinja2', 'pandas', 'pandas-gbq', 'py-github-helper>=0.2.2'],
+    setup_requires=[
+        'dbt-bigquery==1.0.0',
+        'jinja2',
+        'pandas',
+        'pandas-gbq',
+        'py-github-helper>=0.2.2'
+    ],
+    install_requires=[
+        'dbt-bigquery==1.0.0',
+        'jinja2',
+        'pandas',
+        'pandas-gbq',
+        'py-github-helper>=0.2.2'
+    ],
     keywords=['bigquery', 'qa', 'sql', 'table', 'comment', 'check', 'Pull Request', 'dbt', 'cicd'],
     classifiers=[
         "Intended Audience :: Developers",
