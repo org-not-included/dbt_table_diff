@@ -87,6 +87,7 @@ runs:
         echo -n "${{ inputs.GH_TOKEN }}" > $gh_keyfile
         bq_keyfile="secrets/bq_keyfile.json"
         echo ${{ inputs.GCP_TOKEN }} > $bq_keyfile
+        pip3 install -Ir local-requirements.txt
 
         # Run Checks on Modified Files
         echo "Github Details: ${{ inputs.GH_ORG }}/${{ inputs.GH_REPO }} (PR# ${{ inputs.PR_NUMBER }})..."
