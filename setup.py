@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 
-VERSION = '2.2.0-alpha.1'
+VERSION = '2.2.0'
 DESCRIPTION = ''
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
@@ -17,7 +17,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
-    install_requires=['dbt-bigquery', 'jinja2', 'pandas', 'pandas-gbq', 'py-github-helper'],
+    setup_requires=['dbt-bigquery', 'jinja2', 'pandas', 'pandas-gbq', 'py-github-helper>=0.2.2'],
+    install_requires=['dbt-bigquery', 'jinja2', 'pandas', 'pandas-gbq', 'py-github-helper>=0.2.2'],
     keywords=['bigquery', 'qa', 'sql', 'table', 'comment', 'check', 'Pull Request', 'dbt', 'cicd'],
     classifiers=[
         "Intended Audience :: Developers",

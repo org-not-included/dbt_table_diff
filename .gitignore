@@ -1,5 +1,13 @@
+# Local Development
 .idea/
 .venv/
-dbt_packages/
 logs/
 __pycache__/
+
+# dbt Stuff
+dbt_packages/
+
+# PyPi Stuff
+.eggs/
+dbt_table_diff.egg-info/
+dist/

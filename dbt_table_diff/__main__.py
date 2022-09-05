@@ -1,5 +1,5 @@
 import logging
-from run_sql_checks import parse_flags_and_run
+from .run_sql_checks import parse_flags_and_run
 
 
 if __name__ == "__main__":

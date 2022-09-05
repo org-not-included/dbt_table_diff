@@ -4,11 +4,22 @@ import logging
 import os
 from google.oauth2 import service_account
 
-from arg_parser import fetch_input_args
+from .arg_parser import fetch_input_args
 from py_github_helper.utils.commands import (
     get_files_changed_during_pr,
     add_comment
 )
+
+
+# Path to this directory
+dbt_table_diff_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Useful strings for f-string formatting Logs
+new_line = "  \n"
+bullet = f"{new_line}- "
+break_line = f"{new_line}---{new_line}{new_line}"
+indented_new_line = "  \n\t"
+indented_bullet = f"{indented_new_line}- "
 
 
 def get_pandas(project_id, keyfile_path):
@@ -67,8 +78,7 @@ def parse_manifest(manifest_file, files, ignored_schemas, dev_prefix):
     return models
 
 
-def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix,
-               irregular_schemas):
+def run_checks(pd, project_id, models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix, irregular_schemas):
     """
     Loops over files in sql_checks_path and runs each of the checks for each model in models.
 
@@ -82,7 +92,6 @@ def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix
         Format: '{sql_check: {table: [dev_schema, prod_schema, results]}}'
     """
     results = {}
-    pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
     if os.path.exists(sql_checks_path):
         logging.error(f"Running checks in path: {sql_checks_path}.")
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(sql_checks_path))
@@ -106,17 +115,16 @@ def run_checks(models, sql_checks_path, dev_prefix, prod_prefix, fallback_prefix
             if len(results[file]) == 0:
                 results.pop(file)
     else:
-        logging.error(f"File path {sql_checks_path} not found.")
+        logging.error(f"File path '{sql_checks_path}' not found.")
     return results
 
 
-def save_results(results, output_file):
+def parse_results(results):
     """
     Iterates over SQL check results formats them into a readable format.
-    
-    :param results: Contains output from all sql checks for all models
-    :param output_file: file to write formatted results to
-    :return:  None
+
+    :param results: (dict) Contains output from all sql checks for all models
+    :return: (str) comment in Markdown format
     """
     output = f"**Failures:**{bullet}{bullet.join(results.keys())}"
 
@@ -166,12 +174,23 @@ def save_results(results, output_file):
                     output += f"{bullet}{prod}.{table_name}"
                     for row in rows:
                         output += f"{indented_bullet}Results: {','.join(str(val) for val in row)}"
+    return output
 
-    with open(output_file, "w+") as file:
-        file.write(output)
+def build_comment(formatted_results, files):
+    formatted_comment = f"{break_line}**Relevant Files Changed:**{new_line}"
+    if files:
+        formatted_comment += indented_bullet + indented_bullet.join(files)
+    formatted_comment += break_line
+    if formatted_results:
+        formatted_comment += formatted_results
+    else:
+        formatted_comment += "**No Results to show**"
+    return formatted_comment
 
 
-def run_checks(
+def run_dbt_table_diff(
+        project_id,
+        keyfile_path,
         manifest_file,
         dev_prefix,
         prod_prefix,
@@ -184,6 +203,9 @@ def run_checks(
         pr_id,
         auth_token
 ):
+
+    # Configure Pandas for specific BigQuery Project
+    pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
 
     # Get files changed during Pull Request
     files = get_files_changed_during_pr(
@@ -211,13 +233,17 @@ def run_checks(
     # Run SQL Checks, if files in models/*.sql were updated
     if models:
         standard_results = run_checks(
+            pd=pd,
+            project_id=project_id,
             models=models,
-            sql_checks_path="dbt_table_diff/sql_checks",
+            sql_checks_path=os.path.join(dbt_table_diff_dir, "sql_checks/"),
             dev_prefix=dev_prefix,
             prod_prefix=prod_prefix,
             fallback_prefix=fallback_prefix,
             irregular_schemas=irregular_schemas)
         custom_results = run_checks(
+            pd=pd,
+            project_id=project_id,
             models=models,
             sql_checks_path=custom_checks_path,
             dev_prefix=dev_prefix,
@@ -230,27 +256,18 @@ def run_checks(
         # Add Comment to the Pull Request
         # # Parse SQL Check results dictionary into a markdown output file
         if results:
-            # save_results(results, output_file)
-            # Test
+            formatted_check_results = parse_results(results)
+            formatted_comment = build_comment(files=relevant_files, formatted_results=formatted_check_results)
             add_comment(
                 organization=org_name,
                 repository=repo_name,
                 pull_request_id=pr_id,
-                message=f"This is an automated message via Github API.",
+                message=formatted_comment,
                 token=auth_token,
                 username=None,
                 password=None,
             )
-            # Longshot/messy
-            add_comment(
-                organization=org_name,
-                repository=repo_name,
-                pull_request_id=pr_id,
-                message='<br>'.join('<br>'.join(list(results.items()))),
-                token=auth_token,
-                username=None,
-                password=None,
-            )
+
 
 def parse_flags_and_run():
     # Parse CLI Flags
@@ -261,24 +278,23 @@ def parse_flags_and_run():
     dev_prefix = input_args.dev_prefix
     prod_prefix = input_args.prod_prefix
     fallback_prefix = input_args.fallback_prefix
-    custom_checks_path = input_args.custom_checks_path
-    ignored_schemas = input_args.ignored_schemas.split(",")
-    irregular_schemas = input_args.irregular_schemas.split(",")
+    custom_checks_path = ""
+    if input_args.custom_checks_path:
+        custom_checks_path = input_args.custom_checks_path
+    ignored_schemas = []
+    if input_args.ignored_schemas:
+        ignored_schemas = input_args.ignored_schemas.split(",")
+    irregular_schemas = []
+    if input_args.irregular_schemas:
+        irregular_schemas = input_args.irregular_schemas.split(",")
     org_name = input_args.org_name
     repo_name = input_args.repo_name
     pr_id = input_args.pr_id
     auth_token = input_args.auth_token
 
-    # Configure Pandas for specific BigQuery Project
-    pd = get_pandas(project_id=project_id, keyfile_path=keyfile_path)
-
-    # Useful strings for f-string formatting Logs
-    new_line = "  \\n"
-    bullet = f"{new_line}- "
-    indented_new_line = "  \\n\\t"
-    indented_bullet = f"{indented_new_line}- "
-
-    run_checks(
+    run_dbt_table_diff(
+        project_id,
+        keyfile_path,
         manifest_file,
         dev_prefix,
         prod_prefix,
@@ -291,6 +307,7 @@ def parse_flags_and_run():
         pr_id,
         auth_token
     )
+
 
 if __name__ == "__main__":
     parse_flags_and_run()

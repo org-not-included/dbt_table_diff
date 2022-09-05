@@ -5,7 +5,7 @@ def fetch_input_args():
     """
     Parse user input args from the command line into variables.
     """
-    parser = argparse.ArgumentParser("simple_example")
+    parser = argparse.ArgumentParser("dbt_table_diff")
     parser.add_argument(
         "-o", "--org_name", help="Owner of GitHub repository."
     )
@@ -41,9 +41,6 @@ def fetch_input_args():
     )
     parser.add_argument(
         "--fallback_prefix", help="Uncommon prefix used by only some production datasets in dbt."
-    )
-    parser.add_argument(
-        "--output_file", help="Where to write results of SQL checks."
     )
     parser.add_argument(
         "--custom_checks_path", help="A local folder containing any custom SQL to run."

@@ -1,16 +1,67 @@
-
+# Overview:  
+  
+This repository is intended for comparing `models` in `dbt` that have changed during an open PR.  
+  
+Note: It only currently supports `BigQuery`.  
+  
+---  
+  
+# Usage
+The repository has been published as a `Github Action` and `PyPi Package`, which means it can be leveraged in a variety of ways:  
+- [Directly in Python](#example-code-usage) via `run_dbt_table_diff`.
+- [Directly in Terminal](#example-cli-usage) via `python3 -m dbt_table_diff`.
+- [In a Github Workflow File](https://github.com/org-not-included/dbt_example/blob/main/.github/workflows/main.yml) via `Github Actions` to [automatically add comments](https://github.com/org-not-included/dbt_example/pull/2) on Open PRs.
+   
 ---  
 
-### Quick Start:
+# Quick Start:
+```text
+pip3 install dbt_table_diff
+```
 
-[This example Workflow File](https://github.com/org-not-included/dbt_example/blob/main/.github/workflows/main.yml) shows how to configure the Github Action via `Github Actions Inputs`.  
-[This example Pull Request](https://github.com/org-not-included/dbt_example/pull/2) shows the output of the Github Action.  
-![Screen Shot 2022-08-11 at 3 42 04 PM](https://user-images.githubusercontent.com/101577043/184239324-9384b0d2-0d32-4a17-8b5b-41b59b78038e.png)
+---
+<a name="example_code_usage"></a>
+### Example Code Usage:
+```text
+from dbt_table_diff import run_dbt_table_diff
 
----  
-
-### Github Actions Input Arguments:
-
+run_dbt_table_diff(
+        project_id="ultimate-bit-359101",
+        keyfile_path="secrets/bq_keyfile.json",
+        manifest_file="target/manifest.json",
+        dev_prefix="dev_",
+        prod_prefix="prod_",
+        fallback_prefix="fb_",
+        custom_checks_path="",
+        ignored_schemas=[],
+        irregular_schemas=[],
+        org_name="org-not-included",
+        repo_name="dbt_example",
+        pr_id="2",
+        auth_token="my_github_pat",
+)
+```
+  
+---
+  
+<a name="example_cli_usage"></a>
+### Example CLI Usage:
+```shell
+python3 -m dbt_table_diff -t $GH_TOKEN -o org-not-included -r dbt_example -l 2 \
+--manifest_file 'target/manifest.json' --project_id 'ultimate-bit-359101' \
+--keyfile_path 'secrets/bq_keyfile.json' --dev_prefix 'dev_' --prod_prefix 'prod_' --fallback_prefix 'fb_'
+```
+  
+---
+  
+<a name="example_github_action"></a>
+### Example Github Action Usage:  
+- [Overview](https://docs.github.com/en/actions/quickstart) of Github Actions
+- [Open PR](https://github.com/org-not-included/dbt_example/pull/2) showing how to use `dbt_table_diff` as a Github Action.
+  
+---
+  
+#### Github Actions Input Arguments:
   
 | Input Parameter   | Description                                                                                                                                        |  
 |-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -29,14 +80,7 @@
   
 ---  
   
-### Description:
-
-This `Github Action` is intended for comparing `models` in `dbt` that have changed during an open PR.  
-It only currently supports `BigQuery`.
-
----
-
-### Step-By-Step Break Down of Process:  
+## Step-By-Step Break Down of Process:  
   
 - Fetches list of files modified in Pull Request
   - by CURLing `github.api.com/repos/{organization}/{repository}/pulls/{pull_request_id}/files`
@@ -52,3 +96,46 @@ It only currently supports `BigQuery`.
   - in a format supported by Github comments
 - Posts comment on open PR
   - leveraging `py-github-helper` PyPi package
+  
+---  
+  
+## Docs
+```shell
+python3 -m dbt_table_diff --help
+```
+  
+---
+  
+```text
+usage: dbt_table_diff [-h] [-o ORG_NAME] [-r REPO_NAME] [-t AUTH_TOKEN] [-l PR_ID] [--manifest_file MANIFEST_FILE] [--project_id PROJECT_ID] [--keyfile_path KEYFILE_PATH] [--ignored_schemas IGNORED_SCHEMAS]
+                      [--irregular_schemas IRREGULAR_SCHEMAS] [--dev_prefix DEV_PREFIX] [--prod_prefix PROD_PREFIX] [--fallback_prefix FALLBACK_PREFIX] [--custom_checks_path CUSTOM_CHECKS_PATH]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o ORG_NAME, --org_name ORG_NAME
+                        Owner of GitHub repository.
+  -r REPO_NAME, --repo_name REPO_NAME
+                        Name of the GitHub repository.
+  -t AUTH_TOKEN, --auth_token AUTH_TOKEN
+                        User's GitHub Personal Access Token.
+  -l PR_ID, --pr_id PR_ID
+                        The issue # of the Pull Request.
+  --manifest_file MANIFEST_FILE
+                        The path to dbt's manifest file.
+  --project_id PROJECT_ID
+                        The BigQuery Project ID to leverage.
+  --keyfile_path KEYFILE_PATH
+                        The path to the keyfile to use during BQ calls.
+  --ignored_schemas IGNORED_SCHEMAS
+                        Folders in models/ to always ignore during row/col checks.
+  --irregular_schemas IRREGULAR_SCHEMAS
+                        Folders in models/ which use 'fallback_prefix' in prod.
+  --dev_prefix DEV_PREFIX
+                        Prefix used by development datasets in dbt.
+  --prod_prefix PROD_PREFIX
+                        Prefix used by production datasets in dbt.
+  --fallback_prefix FALLBACK_PREFIX
+                        Uncommon prefix used by only some production datasets in dbt.
+  --custom_checks_path CUSTOM_CHECKS_PATH
+                        A local folder containing any custom SQL to run.
+```
