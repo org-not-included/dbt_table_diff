@@ -1,4 +1,7 @@
 # Overview:  
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/99908881fa3946f7b282f9f69e7d6648)](https://app.codacy.com/gh/org-not-included/dbt_table_diff?utm_source=github.com&utm_medium=referral&utm_content=org-not-included/dbt_table_diff&utm_campaign=Badge_Grade_Settings)
+
   
 This repository is intended for comparing `models` in `dbt` that have changed during an open PR.  
   
