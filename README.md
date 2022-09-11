@@ -3,7 +3,7 @@
 This repository is intended for comparing `BigQuery`  `models` in `dbt` that have changed during an open PR.   
   
 [![PyPI version](https://badge.fury.io/py/dbt_table_diff.svg)](https://pypi.org/project/dbt_table_diff/)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d40e1d7c237f46d09e21be1e35438141)](https://www.codacy.com/gh/org-not-included/dbt_table_diff/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=org-not-included/dbt_table_diff&amp;utm_campaign=Badge_Grade)
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/org-not-included/dbt_table_diff/main)](https://www.codefactor.io/repository/github/org-not-included/dbt_table_diff)
 [![GitHub license](https://img.shields.io/github/license/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/blob/main/LICENSE)  
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/pulls)
 [![GitHub issues](https://img.shields.io/github/issues/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/issues)
