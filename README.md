@@ -1,20 +1,31 @@
-# Overview:  
+# dbt_table_diff
   
-This repository is intended for comparing `models` in `dbt` that have changed during an open PR.  
+This repository is intended for comparing `BigQuery`  `models` in `dbt` that have changed during an open PR.   
   
-Note: It only currently supports `BigQuery`.  
-  
+[![PyPI version](https://badge.fury.io/py/dbt_table_diff.svg)](https://pypi.org/project/dbt_table_diff/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d40e1d7c237f46d09e21be1e35438141)](https://www.codacy.com/gh/org-not-included/dbt_table_diff/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=org-not-included/dbt_table_diff&amp;utm_campaign=Badge_Grade)
+[![GitHub license](https://img.shields.io/github/license/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/blob/main/LICENSE)  
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/issues)
+[![GitHub contributors](https://img.shields.io/github/contributors/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/graphs/contributors)  
+[![GitHub Release Date](https://img.shields.io/github/release-date/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/releases)
+[![GitHub last commit](https://img.shields.io/github/last-commit/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/commits/main)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/graphs/commit-activity)  
+[![GitHub forks](https://img.shields.io/github/forks/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/network)
+[![GitHub stars](https://img.shields.io/github/stars/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/stargazers)
+[![GitHub watchers](https://img.shields.io/github/watchers/org-not-included/dbt_table_diff)](https://github.com/org-not-included/dbt_table_diff/watchers)
+[![Twitter Follow](https://img.shields.io/twitter/follow/OrgNotIncluded?style=flat)](https://twitter.com/intent/follow?screen_name=OrgNotIncluded)  
 ---  
   
-# Usage
+## Usage
 The repository has been published as a `Github Action` and `PyPi Package`, which means it can be leveraged in a variety of ways:  
 - [Directly in Python](#example-code-usage) via `run_dbt_table_diff`.
 - [Directly in Terminal](#example-cli-usage) via `python3 -m dbt_table_diff`.
 - [In a Github Workflow File](https://github.com/org-not-included/dbt_example/blob/main/.github/workflows/main.yml) via `Github Actions` to [automatically add comments](https://github.com/org-not-included/dbt_example/pull/2) on Open PRs.
-   
----  
+  
+---
+## Quick Start:
 
-# Quick Start:
 ```text
 pip3 install dbt_table_diff
 ```
@@ -96,7 +107,7 @@ python3 -m dbt_table_diff -t $GH_TOKEN -o org-not-included -r dbt_example -l 2 \
 - Saves output to file
   - in a format supported by Github comments
 - Posts comment on open PR
-  - leveraging `py-github-helper` PyPi package
+  - leveraging `dbt_table_diff` PyPi package
   
 ---  
   
