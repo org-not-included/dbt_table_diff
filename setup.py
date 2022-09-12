@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 
-VERSION = '2.2.2'
+VERSION = '2.2.3'
 DESCRIPTION = 'Compares models in dbt during an open PR'
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
