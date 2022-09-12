@@ -4,7 +4,7 @@ import logging
 import os
 from google.oauth2 import service_account
 
-from arg_parser import fetch_input_args
+import fetch_input_args
 from py_github_helper.utils.commands import (
     get_files_changed_during_pr,
     add_comment
